@@ -94,10 +94,10 @@ function handleMovement() {
     camera.position.z += -Math.cos(camera.rotation.y) * player.speed;
   }
   if(keyboard[65]){ // A key (turn right)
-    camera.rotation.y -= player.speed;
+    camera.rotation.y -= player.speed / 5;
   }
   if(keyboard[68]){ //D key (turn left)
-    camera.rotation.y += player.speed;
+    camera.rotation.y += player.speed / 5;
   }
   if(keyboard[81]){ //Q key (strafe left)
     camera.position.x += -Math.sin(camera.rotation.y - Math.PI/2) * player.speed;
