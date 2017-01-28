@@ -3,7 +3,7 @@ var keyboard = {};
 var USE_WIREFRAME = false;
 var player = {
   height: 2,
-  speed: 0.05,
+  speed: 0.2,
   turnSpeed: Math.PI * 0.2 /*currently not using turnSpeed*/
 }
 
@@ -16,40 +16,20 @@ function init() {
   camera.position.set(0, player.height, -16); //set the starting position of the camera (x, y, z)
   camera.lookAt(new THREE.Vector3(0,0,0)); //tell the camera what to look at
 
-  // addCube(); //add a cube to the scene
   addFloor(); //add a floor to the scene
   addPlatformAt("left"); //add left platform to the scene
-  addPlatformAt("right");
-  addPlatformAt("center");
+  addPlatformAt("right"); //add right platform to the scene
+  addPlatformAt("center"); //add center platform to the scene
   letThereBeLight(); //add a point light to the scene
 
   buildRenderer(); //build the renderer
   animate(); //set everything in motion
 }
 
-// function addCube() {
-//   const cubeGeometry = new THREE.BoxGeometry(1, 1, 1, 20, 20);
-//   const cubeMaterial = new THREE.MeshPhongMaterial({color: 0xff4444, wireframe: USE_WIREFRAME})
-//   cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-//   cube.position.y = 1; //move the cube up so it isn't in the floor
-//
-//   cube.receiveShadow = true; //tell the cube to receive shadows
-//   cube.castShadow = true; //tell the cube to cast shadows
-//
-//   scene.add(cube); //add the cube to the scene
-//   rotateCube(); //rotate the cube
-// }
-//
-// function rotateCube() {
-//   cube.rotation.x += 0.01;
-//   cube.rotation.y += 0.01;
-//   cube.rotation.z += 0.01;
-// }
-
 function addPlatformAt(position) { //add a new platform at "left", "right", or "center"
   //instantiate a cylinder (radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded, thetaStart, thetaLength)
-  var platformGeometry = new THREE.CylinderGeometry(4, 4, 1, 50, false);
-  var platformMaterial = new THREE.MeshPhongMaterial({color: "green", wireframe: USE_WIREFRAME});
+  var platformGeometry = new THREE.CylinderGeometry(4, 4, 0.3, 50, false);
+  var platformMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, wireframe: USE_WIREFRAME});
   var platform = new THREE.Mesh(platformGeometry, platformMaterial);
   var y = platform.geometry.parameters.height / 2; //bottom of platform touches floor
   var x = position === "left" ? -floor.geometry.parameters.width /  8:
@@ -76,7 +56,7 @@ function addFloor() {
 
 function letThereBeLight() {
   //instantiate a new light (color [opt], intensity [opt], distance, decay)
-  light = new THREE.PointLight(0xffffff, 2, 50, 2); //decay = 2 for realistic light falloff
+  light = new THREE.PointLight(0xffffff, 1.5, 50, 2); //decay = 2 for realistic light falloff
   light.position.set(-3, 6, -3); //set the position of the light
   light.castShadow = true; //allow the light to cast a shadow
   light.shadow.camera.near = 0.1; //cast a small shadow when near
@@ -96,7 +76,6 @@ function buildRenderer() {
 
 function animate(){
   requestAnimationFrame(animate); //recursively rerenders page (~60 fps)
-  // rotateCube();
   handleMovement();
   renderer.render(scene, camera);
 }
@@ -130,10 +109,12 @@ function handleMovement() {
   }
   if(keyboard[32]){ //Space bar (move up)
     camera.position.y += player.speed;
+    camera.position.z -= player.speed;
   }
   if(keyboard[88]){ //X key (move down)
     if(camera.position.y > 1){
       camera.position.y -= player.speed;
+      camera.position.z += player.speed;
     }
   }
 }
