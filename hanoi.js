@@ -1,6 +1,7 @@
 var camera, scene, renderer;
 var floor; //the floor on which everything exists
-var control; //global variable to hold control settings
+var controls; //global variable to hold controls
+var objectControls; //global variable to instantiate the ObjectControls library
 var discArray = []; //global variable to hold discArray (allows discs to be accessed from any place)
 var raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2(); //global variables that have to do with figure out which object the mouse is over
 var keyboard = {}; //global variable to access keyboard events
@@ -22,6 +23,10 @@ function init() {
   camera.position.set(0, player.height, -16); //set the starting position of the camera (x, y, z)
   camera.lookAt(new THREE.Vector3(0,0,0)); //tell the camera what to look at
 
+  objectControls = new ObjectControls( camera ); //initialize controls in ObjectControls library
+
+  buildRenderer(); //build the renderer
+
   addFloor(); //add a floor to the scene
   addPlatformAt("left"); //add left platform to the scene
   addPlatformAt("right"); //add right platform to the scene
@@ -34,10 +39,9 @@ function init() {
   addDisc(2, "yellow", 3); //size 2 cylinder, color yellow, 3rd stack position
   addDisc(1, "white", 4); //size 1 cylinder, color white, top stack position
 
-  buildRenderer(); //build the renderer
-  animate(); //set everything in motion
+  createControls();
 
-  enableControls();
+  animate(); //set everything in motion
 }
 
 function buildRenderer() {
@@ -52,27 +56,46 @@ function buildRenderer() {
 
 function animate(){
   requestAnimationFrame(animate); //recursively rerenders page (~60 fps)
-  handleMovement();
-
+  handleMovement(); //allow and update keyboard movements
+  objectControls.update(); //update the object controls
   renderer.render(scene, camera);
 }
 
 
 
-function enableControls() {
-  //TODO: Fix orbit controls
-  // Orbit controls make things a little unusual/complicated because they mess with camera and allow rotation to below the surface of the place
-  // controls = new THREE.OrbitControls( camera );
-  // controls.enableDamping = true;
-  // controls.dampingFactor = 0.25;
-  // controls.enableZoom = false;
-
-  //Transform controls allow the user to move the disks
-  control = new THREE.TransformControls( camera, renderer.domElement );
-  control.setMode("translate");
-  discArray.forEach(disc => control.attach( disc ));
-  scene.add( control );
+function createControls() {
+  controls = new THREE.TransformControls( camera, renderer.domElement );
+  controls.setMode("translate");
 }
+
+// function onMouseDown( event ){
+//   event.preventDefault();
+//   mouse.x = ( event.clientX / screenWidth ) * 2 - 1;
+//   mouse.y = - ( event.clientY / screenHeight ) * 2 + 1;
+//   raycaster.setFromCamera( mouse, camera );
+//   var intersects = raycaster.intersectObjects( discArray );
+//   if (intersects.length > 0) {
+//     var selectedDisc = intersects[ 0 ].object;
+//     scene.add( controls );
+//     controls.attach(selectedDisc);
+//   }
+// }
+// // function onMouseUp ( event ) {
+// //   event.preventDefault();
+// //   mouse.x = ( event.clientX / screenWidth ) * 2 - 1;
+// //   mouse.y = - ( event.clientY / screenHeight ) * 2 + 1;
+// //   raycaster.setFromCamera( mouse, camera );
+// //   var intersects = raycaster.intersectObjects( discArray );
+// //   if ( intersects.length > 0 ) {
+// //     var selectedDisc = intersects[ 0 ].object;
+// //     scene.remove( controls );
+// //     controls.detach(selectedDisc);
+// //   }
+// // }
+
+// window.addEventListener("mousedown", onMouseDown, false);
+
+
 
 /**********************************
 *** Geometry Creation Functions ***
@@ -87,6 +110,10 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
                                 (stackPosition * (disc.geometry.parameters.height)); //place the cylinder on top of the platform
   var x = 10; //place the cylinder in the center of the left platform
   var z = 0; //place it in the center of the floor
+
+  mesh.select = function() {
+    
+  }
 
   disc.position.set(x, y, z); //set the position of the cylinder
   disc.receiveShadow = true; //allow each disc to receive shadows
