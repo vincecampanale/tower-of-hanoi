@@ -40,10 +40,24 @@ function init() {
   enableControls();
 }
 
-function onMouseMove( event ) {
-  mouse.x = ( event.clientX / screenWidth ) * 2 - 1;
-  mouse.y = - ( event.clientY / screenHeight ) * 2 + 1;
+function buildRenderer() {
+  renderer = new THREE.WebGLRenderer({ alpha: true }); //instantiate the renderer
+  renderer.setSize(screenWidth, screenHeight); //set the size of the renderer
+
+  renderer.shadowMap.enabled = true; //enable shadows
+  renderer.shadowMap.type = THREE.BasicShadowMap; //tell the renderer what type of shadow map to use
+
+  document.body.appendChild(renderer.domElement); //append the renderer to the DOM
 }
+
+function animate(){
+  requestAnimationFrame(animate); //recursively rerenders page (~60 fps)
+  handleMovement();
+
+  renderer.render(scene, camera);
+}
+
+
 
 function enableControls() {
   //TODO: Fix orbit controls
@@ -53,12 +67,16 @@ function enableControls() {
   // controls.dampingFactor = 0.25;
   // controls.enableZoom = false;
 
-  // //Transform controls allow the user to move the disks
-  // control = new THREE.TransformControls( camera, renderer.domElement );
-  // control.setMode("translate");
-  // discArray.forEach(disc => control.attach( disc ));
-  // scene.add( control );
+  //Transform controls allow the user to move the disks
+  control = new THREE.TransformControls( camera, renderer.domElement );
+  control.setMode("translate");
+  discArray.forEach(disc => control.attach( disc ));
+  scene.add( control );
 }
+
+/**********************************
+*** Geometry Creation Functions ***
+**********************************/
 
 function addDisc(number, color, stackPosition) { //add a new cylinder on to the stack with number (1 smallest - 4 biggest), a color, and the position in the stack (1 - bottom, 4 - top)
   //instantiate a cylinder (radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded, thetaStart, thetaLength)
@@ -71,10 +89,10 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
   var z = 0; //place it in the center of the floor
 
   disc.position.set(x, y, z); //set the position of the cylinder
-  disc.receiveShadow = true;
-  disc.castShadow = true;
-  scene.add(disc);
-  discArray.push(disc);
+  disc.receiveShadow = true; //allow each disc to receive shadows
+  disc.castShadow = true; //allow each disc to cast shadows
+  scene.add(disc); //add the disc to the scene
+  discArray.push(disc); //push the disc to the discArray to make it globally accessible
 }
 
 function addPlatformAt(position) { //add a new platform at "left", "right", or "center"
@@ -106,6 +124,11 @@ function addFloor() {
   scene.add(floor); //add the floor to the scene
 }
 
+
+
+/***************
+*** Lighting ***
+****************/
 function letThereBeLight() {
   //instantiate a new point light (color [opt], intensity [opt], distance, decay)
   var pointLight = new THREE.PointLight(0xffffff, 1.2, 100, 2); //decay = 2 for realistic light falloff
@@ -121,30 +144,25 @@ function letThereBeLight() {
 
 }
 
-function buildRenderer() {
-  renderer = new THREE.WebGLRenderer({ alpha: true }); //instantiate the renderer
-  renderer.setSize(screenWidth, screenHeight); //set the size of the renderer
 
-  renderer.shadowMap.enabled = true; //enable shadows
-  renderer.shadowMap.type = THREE.BasicShadowMap; //tell the renderer what type of shadow map to use
+/* Raycasting stuff */
 
-  // renderer.setClearColor( 0xf3f3f3, 0 );
+  //This chunk goes inside animate function:
+    // raycaster.setFromCamera( mouse, camera );
+    // var intersects = raycaster.intersectObjects( scene.children );
+    // for ( var i = 0; i < intersects.length; i++ ) {
+    //   intersects[ i ].object.material.color.set( 0xff0000 );
+    // }
 
-  document.body.appendChild(renderer.domElement); //append the renderer to the DOM
-}
+// function onMouseMove( event ) {
+//   mouse.x = ( event.clientX / screenWidth ) * 2 - 1;
+//   mouse.y = - ( event.clientY / screenHeight ) * 2 + 1;
+// }
+// window.addEventListener('mousemove', onMouseMove, false);
 
-function animate(){
-  requestAnimationFrame(animate); //recursively rerenders page (~60 fps)
-  handleMovement();
-  raycaster.setFromCamera( mouse, camera );
-  var intersects = raycaster.intersectObjects( scene.children );
-  for ( var i = 0; i < intersects.length; i++ ) {
-    intersects[ i ].object.material.color.set( 0xff0000 );
-  }
-  renderer.render(scene, camera);
-}
+/* End raycasting stuff */
 
-window.addEventListener('mousemove', onMouseMove, false);
+
 
 /**************************
 ***** Keyboard Events *****
@@ -191,20 +209,9 @@ function keyUp(event){
   keyboard[event.keyCode] = false;
 }
 
-//credit for this function http://barkofthebyte.azurewebsites.net/post/2014/05/05/three-js-projecting-mouse-clicks-to-a-3d-scene-how-to-do-it-and-how-it-works
-// function onDocumentMouseDown( event ) {
-//   var x = event.clientX / (screenWidth * 2) - 1;
-//   var y = - ( event.clientY / (screenHeight * 2) + 1 );
-//   var z = 0.5;
-//   var mouse2D = new THREE.Vector3( x, y );
-//
-//   var raycaster = new THREE.Raycaster();
-//   raycaster.setFromCamera( mouse2D , camera );
-//   var intersects = raycaster.intersectObjects(  );
-//   if(intersects > 0){
-//     console.log(intersects);
-//   }
-// }
+/************************
+**** Event Listeners ****
+************************/
 
 window.addEventListener('keydown', keyDown);
 window.addEventListener('keyup', keyUp);
