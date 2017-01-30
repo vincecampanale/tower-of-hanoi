@@ -2,7 +2,7 @@ var camera, scene, renderer;
 var floor; //the floor on which everything exists
 var control; //global variable to hold control settings
 var discArray = []; //global variable to hold discArray (allows discs to be accessed from any place)
-var raycaster, mouse; //global variables that have to do with figure out which object the mouse is over
+var raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2(); //global variables that have to do with figure out which object the mouse is over
 var keyboard = {}; //global variable to access keyboard events
 var USE_WIREFRAME = false;
 var player = {
@@ -28,7 +28,7 @@ function init() {
   addPlatformAt("center"); //add center platform to the scene
   letThereBeLight(); //add a point light to the scene
 
-  //build the initial tower 
+  //build the initial tower
   addDisc(4, "blue", 1); //size 4 cylinder, color blue, bottom of stack
   addDisc(3, "green", 2); //size 3 cylinder, color green, 2nd stack position
   addDisc(2, "yellow", 3); //size 2 cylinder, color yellow, 3rd stack position
@@ -40,8 +40,9 @@ function init() {
   enableControls();
 }
 
-function addRaycaster() {
-  raycaster = new THREE.Raycaster();
+function onMouseMove( event ) {
+  mouse.x = ( event.clientX / screenWidth ) * 2 - 1;
+  mouse.y = - ( event.clientY / screenHeight ) * 2 + 1;
 }
 
 function enableControls() {
@@ -52,12 +53,11 @@ function enableControls() {
   // controls.dampingFactor = 0.25;
   // controls.enableZoom = false;
 
-  //Transform controls allow the user to move the disks
-  control = new THREE.TransformControls( camera, renderer.domElement );
-  control.addEventListener('click', animate);
-  control.setMode("translate");
-  discArray.forEach(disc => control.attach( disc ));
-
+  // //Transform controls allow the user to move the disks
+  // control = new THREE.TransformControls( camera, renderer.domElement );
+  // control.setMode("translate");
+  // discArray.forEach(disc => control.attach( disc ));
+  // scene.add( control );
 }
 
 function addDisc(number, color, stackPosition) { //add a new cylinder on to the stack with number (1 smallest - 4 biggest), a color, and the position in the stack (1 - bottom, 4 - top)
@@ -136,8 +136,15 @@ function buildRenderer() {
 function animate(){
   requestAnimationFrame(animate); //recursively rerenders page (~60 fps)
   handleMovement();
+  raycaster.setFromCamera( mouse, camera );
+  var intersects = raycaster.intersectObjects( scene.children );
+  for ( var i = 0; i < intersects.length; i++ ) {
+    intersects[ i ].object.material.color.set( 0xff0000 );
+  }
   renderer.render(scene, camera);
 }
+
+window.addEventListener('mousemove', onMouseMove, false);
 
 /**************************
 ***** Keyboard Events *****
