@@ -11,6 +11,8 @@ var screenWidth = window.innerWidth, screenHeight = window.innerHeight;
 
 function init() {
   scene = new THREE.Scene();
+  // scene.background = new THREE.Color( 0xff0000 );
+
   camera = new THREE.PerspectiveCamera(90, screenWidth / screenHeight, 0.1, 1000);
 
   camera.position.set(0, player.height, -16); //set the starting position of the camera (x, y, z)
@@ -26,14 +28,18 @@ function init() {
   animate(); //set everything in motion
 }
 
+function addCylinder() { //add a new cylinder on to the stack with size (1, 2, 3, or 4) 1 smallest - 4 biggest
+
+}
+
 function addPlatformAt(position) { //add a new platform at "left", "right", or "center"
   //instantiate a cylinder (radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded, thetaStart, thetaLength)
   var platformGeometry = new THREE.CylinderGeometry(4, 4, 0.3, 50, false);
   var platformMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, wireframe: USE_WIREFRAME});
   var platform = new THREE.Mesh(platformGeometry, platformMaterial);
   var y = platform.geometry.parameters.height / 2; //bottom of platform touches floor
-  var x = position === "left" ? -floor.geometry.parameters.width /  8:
-          position === "right" ? floor.geometry.parameters.width / 8:
+  var x = position === "left" ? -10:
+          position === "right" ? 10:
           position === "center" ? 0 :
           0; //if nothing is provided, place platform in center
   var z = 0; //place it in the center of the floor
@@ -46,7 +52,7 @@ function addPlatformAt(position) { //add a new platform at "left", "right", or "
 
 function addFloor() {
   //instantiate a plane (width, height, widthSegments [opt], heightSegments [opt])
-  var planeGeometry = new THREE.PlaneGeometry(80, 80, 20, 20);
+  var planeGeometry = new THREE.PlaneGeometry(1000, 500, 20, 20);
   var planeMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, wireframe: USE_WIREFRAME});
   floor = new THREE.Mesh(planeGeometry, planeMaterial);
   floor.rotation.x -= Math.PI / 2;
@@ -55,21 +61,26 @@ function addFloor() {
 }
 
 function letThereBeLight() {
-  //instantiate a new light (color [opt], intensity [opt], distance, decay)
-  light = new THREE.PointLight(0xffffff, 1.5, 50, 2); //decay = 2 for realistic light falloff
-  light.position.set(-3, 6, -3); //set the position of the light
-  light.castShadow = true; //allow the light to cast a shadow
-  light.shadow.camera.near = 0.1; //cast a small shadow when near
-  light.shadow.camera.far = 25; //cast a large shadow when far
-  scene.add(light); //add the light to the scene
+  //instantiate a new point light (color [opt], intensity [opt], distance, decay)
+  pointLight = new THREE.PointLight(0xffffff, 1.2, 100, 2); //decay = 2 for realistic light falloff
+  pointLight.position.set(-3, 6, -6); //set the position of the light
+  pointLight.castShadow = true; //allow the light to cast a shadow
+  pointLight.shadow.camera.near = 0.1; //cast a small shadow when near
+  pointLight.shadow.camera.far = 25; //cast a large shadow when far
+  scene.add(pointLight); //add the light to the scene
+
+  //instantiate a new ambient light
+  ambientLight = new THREE.AmbientLight();
 }
 
 function buildRenderer() {
-  renderer = new THREE.WebGLRenderer(); //instantiate the renderer
+  renderer = new THREE.WebGLRenderer({ alpha: true }); //instantiate the renderer
   renderer.setSize(screenWidth, screenHeight); //set the size of the renderer
 
   renderer.shadowMap.enabled = true; //enable shadows
   renderer.shadowMap.type = THREE.BasicShadowMap; //tell the renderer what type of shadow map to use
+
+  // renderer.setClearColor( 0xf3f3f3, 0 );
 
   document.body.appendChild(renderer.domElement); //append the renderer to the DOM
 }
