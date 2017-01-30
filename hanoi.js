@@ -111,8 +111,21 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
   var x = 10; //place the cylinder in the center of the left platform
   var z = 0; //place it in the center of the floor
 
-  mesh.select = function() {
+  var hoverMaterial = new THREE.MeshBasicMaterial({ color: 0x55ff88 });
+
+  disc.hoverOver = function() { //when hovering over the
+    this.material = hoverMaterial;
+  }.bind(disc);
+  disc.hoverOut = function() {
+    this.material = discMaterial;
+  }.bind(disc);
+
+  disc.select = function() {
     
+  }
+
+  disc.deselect = function() {
+
   }
 
   disc.position.set(x, y, z); //set the position of the cylinder
@@ -120,6 +133,8 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
   disc.castShadow = true; //allow each disc to cast shadows
   scene.add(disc); //add the disc to the scene
   discArray.push(disc); //push the disc to the discArray to make it globally accessible
+
+  objectControls.add(disc);
 }
 
 function addPlatformAt(position) { //add a new platform at "left", "right", or "center"
