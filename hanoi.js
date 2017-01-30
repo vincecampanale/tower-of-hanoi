@@ -1,5 +1,9 @@
-var camera, scene, renderer, floor, control, discArray = [];
-var keyboard = {};
+var camera, scene, renderer;
+var floor; //the floor on which everything exists
+var control; //global variable to hold control settings
+var discArray = []; //global variable to hold discArray (allows discs to be accessed from any place)
+var raycaster, mouse; //global variables that have to do with figure out which object the mouse is over
+var keyboard = {}; //global variable to access keyboard events
 var USE_WIREFRAME = false;
 var player = {
   height: 2,
@@ -24,6 +28,7 @@ function init() {
   addPlatformAt("center"); //add center platform to the scene
   letThereBeLight(); //add a point light to the scene
 
+  //build the initial tower 
   addDisc(4, "blue", 1); //size 4 cylinder, color blue, bottom of stack
   addDisc(3, "green", 2); //size 3 cylinder, color green, 2nd stack position
   addDisc(2, "yellow", 3); //size 2 cylinder, color yellow, 3rd stack position
@@ -33,7 +38,10 @@ function init() {
   animate(); //set everything in motion
 
   enableControls();
-  console.log(discArray);
+}
+
+function addRaycaster() {
+  raycaster = new THREE.Raycaster();
 }
 
 function enableControls() {
@@ -46,7 +54,9 @@ function enableControls() {
 
   //Transform controls allow the user to move the disks
   control = new THREE.TransformControls( camera, renderer.domElement );
+  control.addEventListener('click', animate);
   control.setMode("translate");
+  discArray.forEach(disc => control.attach( disc ));
 
 }
 
