@@ -90,8 +90,6 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
 
   var hoverMaterial = new THREE.MeshBasicMaterial({ color: 0x55ff88 }); //when hovering over a disc, change the color & material
 
-  disc.selected = false;
-
   disc.hoverOver = function() { //when hovering over a disc, change its color
     this.material = hoverMaterial;
   }.bind( disc );
@@ -100,17 +98,15 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
   }.bind( disc );
 
   disc.select = function() { //allow the disc to move when selected
-    //TODO: only allow the disc to move if it is the top one on the pile, otherwise do nothing
-    intersectionPlane.position.copy( this.position ); //TODO: Figure out why this works.
+    intersectionPlane.position.copy( this.position ); //TODO: Figure out what this does.
 
     //overwrite the tower values so they only contain data from most recent move
     leftTower = ["left"];
     centerTower = ["center"];
     rightTower = ["right"];
-    loadTowerArrays();
-    if (leftTower.indexOf(this) !== -1) { //if selected disc is in left tower
-      console.log(leftTower);
-    }
+    loadTowerArrays(); //load the tower arrays in order to determine whether this thing is allowed to move
+
+
 
   }.bind( disc );
 
@@ -140,11 +136,28 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
     var raycaster = objectControls.raycaster;
     var i = raycaster.intersectObject( intersectionPlane );
 
-    if (!i[0] ){
-      console.log("Nothing was selected.");
-    } else {
-      this.position.copy( i[0].point );
+    /*
+    Important game logic:
+    most recently added disc will be the last index of its tower,
+    so only allow the disc to move if it is the last index in it's tower
+    */
+    if (leftTower.indexOf(this) !== -1) { //if selected disc is in left tower
+      var moveable = leftTower.indexOf(this) === leftTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
+      if (moveable) {
+        this.position.copy( i[0].point );
+      }
+    } else if (centerTower.indexOf(this) !== -1) { //if selected disc is in center tower
+      var moveable = centerTower.indexOf(this) === centerTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
+      if (moveable) {
+        this.position.copy( i[0].point );
+      }
+    } else if (rightTower.indexOf(this) !== -1) { //if selected disc is in right tower
+      var moveable = rightTower.indexOf(this) === rightTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
+      if (moveable) {
+        this.position.copy( i[0].point ); //move the disc to the position of the raycaster endpoint (where the mouse is)
+      }
     }
+
   }.bind( disc );
 
   disc.position.set(x, y, z); //set the position of the cylinder
