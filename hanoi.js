@@ -1,29 +1,45 @@
+//WebGL boilerplate variables
 var camera, scene, renderer;
-var floor; //the floor on which everything exists
-var controls; //global variable to hold controls
-var objectControls; //global variable to instantiate the ObjectControls library
-var discArray = []; //global variable to hold discArray (allows discs to be accessed from any place)
-var raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2(); //global variables that have to do with figure out which object the mouse is over
-var keyboard = {}; //global variable to access keyboard events
+
+//Standard global variables -- window and movement settings
 var USE_WIREFRAME = false;
-var player = {
+var screenWidth = window.innerWidth, screenHeight = window.innerHeight;
+var movementSettings = {
   height: 2,
   speed: 0.2,
   turnSpeed: Math.PI * 0.2 /*currently not using turnSpeed*/
 }
 
-var screenWidth = window.innerWidth, screenHeight = window.innerHeight;
+//Physical objects in the scene that need to be globally accessible
+var floor; //the floor on which everything exists
+var discArray = []; //global variable to hold discArray (allows discs to be accessed from any place)
 
+var keyboard = {}; //global variable to access keyboard event
+
+//Necessary global variables to enable motion along XY plane
+var objectControls; //global variable to instantiate the ObjectControls library
+var raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2(); //global variables that have to do with figure out which object the mouse is over
+var intersectionPlane;
+
+
+
+
+
+/************************
+** Initialize Function **
+*************************/
 function init() {
   scene = new THREE.Scene();
   // scene.background = new THREE.Color( 0xff0000 );
 
   camera = new THREE.PerspectiveCamera(90, screenWidth / screenHeight, 0.1, 1000);
 
-  camera.position.set(0, player.height, -16); //set the starting position of the camera (x, y, z)
+  camera.position.set(0, movementSettings.height, -16); //set the starting position of the camera (x, y, z)
   camera.lookAt(new THREE.Vector3(0,0,0)); //tell the camera what to look at
 
   objectControls = new ObjectControls( camera ); //initialize controls in ObjectControls library
+
+  createIntersectionPlane(); //add a plane for the discs to move along when dragged
 
   buildRenderer(); //build the renderer
 
@@ -38,8 +54,6 @@ function init() {
   addDisc(3, "green", 2); //size 3 cylinder, color green, 2nd stack position
   addDisc(2, "yellow", 3); //size 2 cylinder, color yellow, 3rd stack position
   addDisc(1, "white", 4); //size 1 cylinder, color white, top stack position
-
-  createControls();
 
   animate(); //set everything in motion
 }
@@ -58,42 +72,11 @@ function animate(){
   requestAnimationFrame(animate); //recursively rerenders page (~60 fps)
   handleMovement(); //allow and update keyboard movements
   objectControls.update(); //update the object controls
+
   renderer.render(scene, camera);
 }
 
 
-
-function createControls() {
-  controls = new THREE.TransformControls( camera, renderer.domElement );
-  controls.setMode("translate");
-}
-
-// function onMouseDown( event ){
-//   event.preventDefault();
-//   mouse.x = ( event.clientX / screenWidth ) * 2 - 1;
-//   mouse.y = - ( event.clientY / screenHeight ) * 2 + 1;
-//   raycaster.setFromCamera( mouse, camera );
-//   var intersects = raycaster.intersectObjects( discArray );
-//   if (intersects.length > 0) {
-//     var selectedDisc = intersects[ 0 ].object;
-//     scene.add( controls );
-//     controls.attach(selectedDisc);
-//   }
-// }
-// // function onMouseUp ( event ) {
-// //   event.preventDefault();
-// //   mouse.x = ( event.clientX / screenWidth ) * 2 - 1;
-// //   mouse.y = - ( event.clientY / screenHeight ) * 2 + 1;
-// //   raycaster.setFromCamera( mouse, camera );
-// //   var intersects = raycaster.intersectObjects( discArray );
-// //   if ( intersects.length > 0 ) {
-// //     var selectedDisc = intersects[ 0 ].object;
-// //     scene.remove( controls );
-// //     controls.detach(selectedDisc);
-// //   }
-// // }
-
-// window.addEventListener("mousedown", onMouseDown, false);
 
 
 
@@ -111,22 +94,35 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
   var x = 10; //place the cylinder in the center of the left platform
   var z = 0; //place it in the center of the floor
 
-  var hoverMaterial = new THREE.MeshBasicMaterial({ color: 0x55ff88 });
+  var hoverMaterial = new THREE.MeshBasicMaterial({ color: 0x55ff88 }); //when hovering over a disc, change the color & material
 
-  disc.hoverOver = function() { //when hovering over the
+  disc.selected = false;
+
+  disc.hoverOver = function() { //when hovering over a disc, change its color
     this.material = hoverMaterial;
-  }.bind(disc);
-  disc.hoverOut = function() {
+  }.bind( disc );
+  disc.hoverOut = function() { //change back to normal color on hover out
     this.material = discMaterial;
-  }.bind(disc);
+  }.bind( disc );
 
-  disc.select = function() {
-    
+  disc.select = function() { //allow the disc to move when selected
+    intersectionPlane.position.copy( this.position );
+  }.bind( disc );
+
+  disc.deselect = function snapIntoPlace() {
+    console.log(this.position.x);
   }
 
-  disc.deselect = function() {
+  disc.update = function() {
+    var raycaster = objectControls.raycaster;
+    var i = raycaster.intersectObject( intersectionPlane );
 
-  }
+    if (!i[0] ){
+      console.log("Nothing was selected.");
+    } else {
+      this.position.copy( i[0].point );
+    }
+  }.bind( disc );
 
   disc.position.set(x, y, z); //set the position of the cylinder
   disc.receiveShadow = true; //allow each disc to receive shadows
@@ -166,6 +162,15 @@ function addFloor() {
   scene.add(floor); //add the floor to the scene
 }
 
+function createIntersectionPlane() {
+  var geo = new THREE.PlaneGeometry( 100000 , 100000, 8, 8);
+  var mat = new THREE.MeshNormalMaterial({visible: false, side: THREE.DoubleSide});
+  intersectionPlane = new THREE.Mesh( geo , mat );
+  intersectionPlane.position.set(0,0,0);
+  scene.add( intersectionPlane );
+}
+
+
 
 
 /***************
@@ -183,26 +188,9 @@ function letThereBeLight() {
   //instantiate a new ambient light
   var ambientLight = new THREE.AmbientLight( 0xffffff );
   scene.add( ambientLight );
-
 }
 
 
-/* Raycasting stuff */
-
-  //This chunk goes inside animate function:
-    // raycaster.setFromCamera( mouse, camera );
-    // var intersects = raycaster.intersectObjects( scene.children );
-    // for ( var i = 0; i < intersects.length; i++ ) {
-    //   intersects[ i ].object.material.color.set( 0xff0000 );
-    // }
-
-// function onMouseMove( event ) {
-//   mouse.x = ( event.clientX / screenWidth ) * 2 - 1;
-//   mouse.y = - ( event.clientY / screenHeight ) * 2 + 1;
-// }
-// window.addEventListener('mousemove', onMouseMove, false);
-
-/* End raycasting stuff */
 
 
 
@@ -212,35 +200,35 @@ function letThereBeLight() {
 
 function handleMovement() {
   if(keyboard[87]){ //W key (forward)
-    camera.position.x -= Math.sin(camera.rotation.y) * player.speed;
-    camera.position.z -= -Math.cos(camera.rotation.y) * player.speed;
+    camera.position.x -= Math.sin(camera.rotation.y) * movementSettings.speed;
+    camera.position.z -= -Math.cos(camera.rotation.y) * movementSettings.speed;
   }
   if(keyboard[83]){ //S key (backward)
-    camera.position.x += Math.sin(camera.rotation.y) * player.speed;
-    camera.position.z += -Math.cos(camera.rotation.y) * player.speed;
+    camera.position.x += Math.sin(camera.rotation.y) * movementSettings.speed;
+    camera.position.z += -Math.cos(camera.rotation.y) * movementSettings.speed;
   }
   if(keyboard[65]){ // A key (turn right)
-    camera.rotation.y -= player.speed / 5;
+    camera.rotation.y -= movementSettings.speed / 5;
   }
   if(keyboard[68]){ //D key (turn left)
-    camera.rotation.y += player.speed / 5;
+    camera.rotation.y += movementSettings.speed / 5;
   }
   if(keyboard[81]){ //Q key (strafe left)
-    camera.position.x += -Math.sin(camera.rotation.y - Math.PI/2) * player.speed;
-    camera.position.z += Math.cos(camera.rotation.y - Math.PI/2) * player.speed;
+    camera.position.x += -Math.sin(camera.rotation.y - Math.PI/2) * movementSettings.speed;
+    camera.position.z += Math.cos(camera.rotation.y - Math.PI/2) * movementSettings.speed;
   }
   if(keyboard[69]){ //E key (strafe right)
-    camera.position.x += Math.sin(camera.rotation.y - Math.PI/2) * player.speed;
-    camera.position.z += -Math.cos(camera.rotation.y - Math.PI/2) * player.speed;
+    camera.position.x += Math.sin(camera.rotation.y - Math.PI/2) * movementSettings.speed;
+    camera.position.z += -Math.cos(camera.rotation.y - Math.PI/2) * movementSettings.speed;
   }
   if(keyboard[32]){ //Space bar (move up)
-    camera.position.y += player.speed;
-    camera.position.z -= player.speed;
+    camera.position.y += movementSettings.speed;
+    camera.position.z -= movementSettings.speed;
   }
   if(keyboard[88]){ //X key (move down)
     if(camera.position.y > 1){
-      camera.position.y -= player.speed;
-      camera.position.z += player.speed;
+      camera.position.y -= movementSettings.speed;
+      camera.position.z += movementSettings.speed;
     }
   }
 }
@@ -250,6 +238,9 @@ function keyDown(event){
 function keyUp(event){
   keyboard[event.keyCode] = false;
 }
+
+
+
 
 /************************
 **** Event Listeners ****
