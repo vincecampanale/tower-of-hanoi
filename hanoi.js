@@ -23,8 +23,6 @@ var intersectionPlane;
 
 
 
-
-
 /************************
 ** Initialize Function **
 *************************/
@@ -76,10 +74,6 @@ function animate(){
   renderer.render(scene, camera);
 }
 
-
-
-
-
 /**********************************
 *** Geometry Creation Functions ***
 **********************************/
@@ -106,11 +100,19 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
   }.bind( disc );
 
   disc.select = function() { //allow the disc to move when selected
-    intersectionPlane.position.copy( this.position );
+    //TODO: only allow the disc to move if it is the top one on the pile, otherwise do nothing
+
+    //overwrite the tower values so they only contain data from most recent move
+    leftTower = ["left"];
+    centerTower = ["center"];
+    rightTower = ["right"];
+
+    intersectionPlane.position.copy( this.position ); //TODO: Figure out why this works.
   }.bind( disc );
 
-  disc.deselect = function snapIntoPlace() {
-    console.log(this.position.x);
+  disc.deselect = function snapIntoPlace() { //when the disc is deselected, snap it into place (if the move is legal)
+    console.log(disc.position.x);
+    trackDiscs();
   }
 
   disc.update = function() {
@@ -129,9 +131,43 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
   disc.castShadow = true; //allow each disc to cast shadows
   scene.add(disc); //add the disc to the scene
   discArray.push(disc); //push the disc to the discArray to make it globally accessible
-
   objectControls.add(disc);
 }
+
+/**********************
+***** Game Logic ******
+**********************/
+
+var leftTower = ["left"];
+var centerTower = ["center"];
+var rightTower = ["right"];
+//Note: First disc element of the array is the last disc to be placed on that platform. 
+
+function trackDiscs() {
+  for(var i = 0; i < discArray.length; i++) {
+    let xPosition = discArray[i].position.x;
+    if(xPosition >= 5) {
+      leftTower.push(discArray[i]);
+    } else if (xPosition < 5 && xPosition > -5) {
+      centerTower.push(discArray[i]);
+    } else if (xPosition < -5) {
+      rightTower.push(discArray[i]);
+    }
+  }
+
+  console.log(leftTower);
+  console.log(centerTower);
+  console.log(rightTower);
+  console.log(":---------------------------:")
+}
+
+function getWidths() {
+
+}
+
+setTimeout(function(){
+  trackDiscs();
+}, 1000);
 
 function addPlatformAt(position) { //add a new platform at "left", "right", or "center"
   //instantiate a cylinder (radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded, thetaStart, thetaLength)
@@ -190,10 +226,6 @@ function letThereBeLight() {
   scene.add( ambientLight );
 }
 
-
-
-
-
 /**************************
 ***** Keyboard Events *****
 **************************/
@@ -238,9 +270,6 @@ function keyDown(event){
 function keyUp(event){
   keyboard[event.keyCode] = false;
 }
-
-
-
 
 /************************
 **** Event Listeners ****
