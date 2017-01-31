@@ -101,18 +101,39 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
 
   disc.select = function() { //allow the disc to move when selected
     //TODO: only allow the disc to move if it is the top one on the pile, otherwise do nothing
+    intersectionPlane.position.copy( this.position ); //TODO: Figure out why this works.
 
     //overwrite the tower values so they only contain data from most recent move
     leftTower = ["left"];
     centerTower = ["center"];
     rightTower = ["right"];
+    loadTowerArrays();
+    if (leftTower.indexOf(this) !== -1) { //if selected disc is in left tower
+      console.log(leftTower);
+    }
 
-    intersectionPlane.position.copy( this.position ); //TODO: Figure out why this works.
   }.bind( disc );
 
   disc.deselect = function snapIntoPlace() { //when the disc is deselected, snap it into place (if the move is legal)
-    console.log(disc.position.x);
-    trackDiscs();
+    leftTower = ["left"];
+    centerTower = ["center"];
+    rightTower = ["right"];
+    loadTowerArrays();
+    console.log("ON DESELECT");
+    console.log(leftTower);
+    console.log(centerTower);
+    console.log(rightTower);
+    console.log(":---------------------------:")
+    for(var i = 1; i < leftTower.length; i++) { //for all meshes in left tower
+      leftTower[i].position.x = 10; //snap them to x position 10 on mouse release
+    }
+    for(var i = 1; i < rightTower.length; i++) { //for all meshes in right tower
+      rightTower[i].position.x = -10; //snap them to x position -10 on mouse release
+    }
+    for(var i = 1; i < centerTower.length; i++) { //for all meshes in center tower
+      centerTower[i].position.x = 0; //snap them to x position 0 on mouse release
+    }
+
   }
 
   disc.update = function() {
@@ -141,9 +162,9 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
 var leftTower = ["left"];
 var centerTower = ["center"];
 var rightTower = ["right"];
-//Note: First disc element of the array is the last disc to be placed on that platform. 
+//Note: First disc element of the array is the last disc to be placed on that platform.
 
-function trackDiscs() {
+function loadTowerArrays() {
   for(var i = 0; i < discArray.length; i++) {
     let xPosition = discArray[i].position.x;
     if(xPosition >= 5) {
@@ -154,20 +175,11 @@ function trackDiscs() {
       rightTower.push(discArray[i]);
     }
   }
-
-  console.log(leftTower);
-  console.log(centerTower);
-  console.log(rightTower);
-  console.log(":---------------------------:")
 }
 
 function getWidths() {
 
 }
-
-setTimeout(function(){
-  trackDiscs();
-}, 1000);
 
 function addPlatformAt(position) { //add a new platform at "left", "right", or "center"
   //instantiate a cylinder (radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded, thetaStart, thetaLength)
