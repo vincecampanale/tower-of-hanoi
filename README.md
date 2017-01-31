@@ -18,6 +18,12 @@ Created with [three.js](https://threejs.org/), a Javascript library created by [
 
 3) I can place a disc over the platform I want to put it on and if it is a legal move, it will snap into place. If the move is illegal, it will go back to where I got it from and tell me why the move didn't work.
 
-4) The game tells me when I win.
+4) The game tells me when I win. Strangely enough, without a time limit, there is no "losing" in this game unless I give up...which is impossible.
 
-5) I can see how many moves I've done and the minimum number of moves it takes to solve the puzzle. 
+5) I can see how many moves I've done and the minimum number of moves it takes to solve the puzzle.
+
+#### Credits
+
+[This Youtube playlist](https://www.youtube.com/playlist?list=PLCTVwBLCNozSGfxhCIiEH26tbJrQ2_Bw3) got me started off. Without it, this project would have taken way longer.
+
+Infinite thanks to [cabbibo](https://github.com/cabbibo) for their [ObjectControls project](https://github.com/cabbibo/ObjectControls), especially the [Drag and Drop](https://github.com/cabbibo/ObjectControls/blob/master/examples/drag.html) example. So useful.
