@@ -1,3 +1,5 @@
+//TODO: If I can find a way to prevent the user from trying to move a larger disc onto a smaller disc, the game logic will be complete. 
+
 //WebGL boilerplate variables
 var camera, scene, renderer;
 
@@ -22,7 +24,6 @@ var raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2(); //global var
 var intersectionPlane;
 
 
-
 /************************
 ** Initialize Function **
 *************************/
@@ -32,7 +33,7 @@ function init() {
 
   camera = new THREE.PerspectiveCamera(90, screenWidth / screenHeight, 0.1, 1000);
 
-  camera.position.set(0, movementSettings.height, -16); //set the starting position of the camera (x, y, z)
+  camera.position.set(0, movementSettings.height, -20); //set the starting position of the camera (x, y, z)
   camera.lookAt(new THREE.Vector3(0,0,0)); //tell the camera what to look at
 
   objectControls = new ObjectControls( camera ); //initialize controls in ObjectControls library
@@ -48,10 +49,10 @@ function init() {
   letThereBeLight(); //add a point light to the scene
 
   //build the initial tower
-  addDisc(4, "blue", 1); //size 4 cylinder, color blue, bottom of stack
-  addDisc(3, "green", 2); //size 3 cylinder, color green, 2nd stack position
-  addDisc(2, "yellow", 3); //size 2 cylinder, color yellow, 3rd stack position
   addDisc(1, "white", 4); //size 1 cylinder, color white, top stack position
+  addDisc(2, "yellow", 3); //size 2 cylinder, color yellow, 3rd stack position
+  addDisc(3, "green", 2); //size 3 cylinder, color green, 2nd stack position
+  addDisc(4, "blue", 1); //size 4 cylinder, color blue, bottom of stack
 
   animate(); //set everything in motion
 }
@@ -95,7 +96,7 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
   }.bind( disc );
   disc.hoverOut = function() { //change back to normal color on hover out
     this.material = discMaterial;
-  }.bind( disc );
+  }.bind( disc ); //bind the method context to the selected disc
 
   disc.select = function() { //allow the disc to move when selected
     intersectionPlane.position.copy( this.position ); //TODO: Figure out what this does.
@@ -104,11 +105,9 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
     leftTower = ["left"];
     centerTower = ["center"];
     rightTower = ["right"];
+
     loadTowerArrays(); //load the tower arrays in order to determine whether this thing is allowed to move
-
-
-
-  }.bind( disc );
+  }.bind( disc ); //bind the method context to the selected disc
 
   disc.deselect = function snapIntoPlace() { //when the disc is deselected, snap it into place (if the move is legal)
     leftTower = ["left"];
@@ -122,15 +121,17 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
     console.log(":---------------------------:")
     for(var i = 1; i < leftTower.length; i++) { //for all meshes in left tower
       leftTower[i].position.x = 10; //snap them to x position 10 on mouse release
-    }
-    for(var i = 1; i < rightTower.length; i++) { //for all meshes in right tower
-      rightTower[i].position.x = -10; //snap them to x position -10 on mouse release
+      leftTower[i].position.y = (leftTower.length - i) * leftTower[i].geometry.parameters.height;
     }
     for(var i = 1; i < centerTower.length; i++) { //for all meshes in center tower
       centerTower[i].position.x = 0; //snap them to x position 0 on mouse release
+      centerTower[i].position.y = (centerTower.length - i) * centerTower[i].geometry.parameters.height;
     }
-
-  }
+    for(var i = 1; i < rightTower.length; i++) { //for all meshes in right tower
+      rightTower[i].position.x = -10; //snap them to x position -10 on mouse release
+      rightTower[i].position.y = (rightTower.length - i) * rightTower[i].geometry.parameters.height;
+    }
+  }.bind( disc ); //bind the method context to the selected disc
 
   disc.update = function() {
     var raycaster = objectControls.raycaster;
@@ -138,27 +139,27 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
 
     /*
     Important game logic:
-    most recently added disc will be the last index of its tower,
+    most recently added disc will be saved in index 1 of its tower,
     so only allow the disc to move if it is the last index in it's tower
     */
     if (leftTower.indexOf(this) !== -1) { //if selected disc is in left tower
-      var moveable = leftTower.indexOf(this) === leftTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
+      var moveable = leftTower.indexOf(this) === 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
       if (moveable) {
         this.position.copy( i[0].point );
       }
     } else if (centerTower.indexOf(this) !== -1) { //if selected disc is in center tower
-      var moveable = centerTower.indexOf(this) === centerTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
+      var moveable = centerTower.indexOf(this) === 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
       if (moveable) {
         this.position.copy( i[0].point );
       }
     } else if (rightTower.indexOf(this) !== -1) { //if selected disc is in right tower
-      var moveable = rightTower.indexOf(this) === rightTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
+      var moveable = rightTower.indexOf(this) === 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
       if (moveable) {
         this.position.copy( i[0].point ); //move the disc to the position of the raycaster endpoint (where the mouse is)
       }
     }
 
-  }.bind( disc );
+  }.bind( disc ); //bind the method context to the selected disc
 
   disc.position.set(x, y, z); //set the position of the cylinder
   disc.receiveShadow = true; //allow each disc to receive shadows
