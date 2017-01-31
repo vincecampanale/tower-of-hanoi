@@ -1,6 +1,4 @@
-//TODO: If I can find a way to prevent the user from trying to move a larger disc onto a smaller disc, the game logic will be complete.
-
-//WebGL boilerplate variables
+//WebGL boilerplate global variables
 var camera, scene, renderer;
 
 //Standard global variables -- window and movement settings
@@ -51,6 +49,12 @@ var currentDisc = {
   }
 };
 
+//Instantiate globally accessible tower arrays
+var leftTower = ["left"];
+var centerTower = ["center"];
+var rightTower = ["right"];
+
+
 
 /************************
 ** Initialize Function **
@@ -75,7 +79,7 @@ function init() {
   addPlatformAt("right"); //add right platform to the scene
   addPlatformAt("center"); //add center platform to the scene
 
-  loadTowerArrays();
+  loadTowerArrays(); //load up the initial tower arrays
 
   letThereBeLight(); //add a point light to the scene
 
@@ -106,6 +110,8 @@ function animate(){
   renderer.render(scene, camera);
 }
 
+
+
 /**********************************
 *** Geometry Creation Functions ***
 **********************************/
@@ -115,7 +121,7 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
   var discGeometry = new THREE.CylinderGeometry(number, number, 0.8, 50, false);
   var discMaterial = new THREE.MeshPhongMaterial({color: color, wireframe: false});
   var disc = new THREE.Mesh( discGeometry, discMaterial );
-  var y = stackPosition === 1 ? 0.3 + (stackPosition * disc.geometry.parameters.height / 2) :
+  var y = stackPosition === 1 ? 0.4 + (stackPosition * disc.geometry.parameters.height / 2) :
                                 (stackPosition * (disc.geometry.parameters.height)); //place the cylinder on top of the platform
   var x = 10; //place the cylinder in the center of the left platform
   var z = 0; //place it in the center of the floor
@@ -146,43 +152,27 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
   disc.deselect = function snapIntoPlace() { //when the disc is deselected, snap it into place (if the move is legal)
     currentDisc.releasedX = this.position.x; //the position the disc is released at
 
-    // leftTower = ["left"];
-    // centerTower = ["center"];
-    // rightTower = ["right"];
-    // loadTowerArrays();
-    console.log("ON DESELECT");
-    console.log(leftTower);
-    console.log(centerTower);
-    console.log(rightTower);
-    console.log(":---------------------------:")
-
-    //everything that happens here assumes that the disc is moveable
-    //before doing anything, make sure that the releasedX is actually greater than 5 units from original x
-    //for the tower that the released disc is supposed to go into
-    //check all of the discs currently in the tower
-    //if the released disc radius is larger than the disc on the top of the target platform,
-      //send the released disc back to its orginal tower
-
-    if(currentDisc.isMoved()){
-      var newTower = currentDisc.newPlatform();
-      var oldTower = currentDisc.oldPlatform();
-      if ( newTower.length > 1) { //if there are any discs in the center tower
+    if(currentDisc.isMoved()){ //everything that happens here assumes that the disc is moveable
+      var newTower = currentDisc.newPlatform(); //get the platform the disc is being moved to
+      var oldTower = currentDisc.oldPlatform(); //get the platform the disc is being moved from
+      if ( newTower.length > 1) { //if there are any discs already in the new tower
         var topDiscRadius = newTower[newTower.length - 1].geometry.parameters.radiusTop; //get the top disc radius
-        console.log("topDiscRadius: " + topDiscRadius);
-        console.log("currentDiscRadius: " + currentDisc.radius);
         if ( currentDisc.radius > topDiscRadius ) { //if the current disc radius is larger than the top disc radius
-          this.position.x = currentDisc.originalX; // send the current disc back to its original position
-        } else if ( currentDisc.radius < topDiscRadius ){
-          this.position.x = newTower[1].position.x;
-          oldTower.splice(oldTower.indexOf(this), 1);
-          newTower.push(this);
+          this.position.x = currentDisc.originalX; // Illegal move - send the current disc back to its original position
+          console.log("Nope"); //nooooope nope nope nope
+        } else if ( currentDisc.radius < topDiscRadius ){ // if the current disc radius is smaller than the top disc radius
+          this.position.x = newTower[1].position.x; //throw that disc on the tower!
+          oldTower.splice(oldTower.indexOf(this), 1); //remove it from the oldTower array
+          newTower.push(this); //add it to the newTower array
         }
       } else if ( newTower.length === 1 ){ //if there are no other discs in the center tower
-        oldTower.splice(oldTower.indexOf(this), 1);
-        newTower.push(this);
+        oldTower.splice(oldTower.indexOf(this), 1); //remove it from the old tower
+        newTower.push(this); //add it to the new tower
       }
     }
 
+    //TODO: Refactor these for loops to make code DRY.
+    //These are responsible for going through the tower arrays and making sure everything is in the right spot.
     for(var i = 1; i < leftTower.length; i++) { //for all meshes in left tower
       leftTower[i].position.x = 10; //snap them to x position 10 on mouse release
       leftTower[i].position.y = i * leftTower[i].geometry.parameters.height;
@@ -203,23 +193,23 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
 
     /*
     Important game logic:
-    most recently added disc will be saved in index 1 of its tower,
+    most recently added disc will be saved in index 1 of its tower and everything gets pushed up,
     so only allow the disc to move if it is the last index in it's tower
     */
     if (leftTower.indexOf(this) !== -1) { //if selected disc is in left tower
       var moveable = leftTower.indexOf(this) === leftTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
       if (moveable) {
-        this.position.copy( i[0].point );
+        this.position.copy( i[0].point ); //voodoo magic that allows this disc to move... TODO: Figure out how this works.
       }
     } else if (centerTower.indexOf(this) !== -1) { //if selected disc is in center tower
       var moveable = centerTower.indexOf(this) === centerTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
       if (moveable) {
-        this.position.copy( i[0].point );
+        this.position.copy( i[0].point ); //more voodoo - does it have to do with the Raycaster?
       }
     } else if (rightTower.indexOf(this) !== -1) { //if selected disc is in right tower
       var moveable = rightTower.indexOf(this) === rightTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
       if (moveable) {
-        this.position.copy( i[0].point ); //move the disc to the position of the raycaster endpoint (where the mouse is)
+        this.position.copy( i[0].point ); //woogly woogly woogly
       }
     }
   }.bind( disc ); //bind the method context to the selected disc
@@ -229,17 +219,8 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
   disc.castShadow = true; //allow each disc to cast shadows
   scene.add(disc); //add the disc to the scene
   discArray.push(disc); //push the disc to the discArray to make it globally accessible
-  objectControls.add(disc);
+  objectControls.add(disc); //disc can be controlled
 }
-
-/**********************
-***** Game Logic ******
-**********************/
-
-var leftTower = ["left"];
-var centerTower = ["center"];
-var rightTower = ["right"];
-//Note: First disc element of the array is the last disc to be placed on that platform.
 
 function loadTowerArrays() {
   for(var i = 0; i < discArray.length; i++) {
@@ -254,13 +235,9 @@ function loadTowerArrays() {
   }
 }
 
-function getWidths() {
-
-}
-
 function addPlatformAt(position) { //add a new platform at "left", "right", or "center"
   //instantiate a cylinder (radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded, thetaStart, thetaLength)
-  var platformGeometry = new THREE.CylinderGeometry(4, 4, 0.3, 50, false);
+  var platformGeometry = new THREE.CylinderGeometry(4, 4, 0.4, 50, false);
   var platformMaterial = new THREE.MeshPhongMaterial({color: 0x001f3f, wireframe: USE_WIREFRAME});
   var platform = new THREE.Mesh( platformGeometry, platformMaterial );
   var y = platform.geometry.parameters.height / 2; //bottom of platform touches floor

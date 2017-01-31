@@ -1,8 +1,9 @@
-#### Tower of Hanoi
+### Tower of Hanoi
 Created with [three.js](https://threejs.org/), a Javascript library created by [mrdoob](https://github.com/mrdoob) to make using WebGL easier.
 
-#### User Stories
-1) I can move around and explore 3D space.
+### User Stories
+#### Must-haves:
+1) I can move around and explore space surrounding the towers.
   W: forward
   A: backward
   S: turn right
@@ -18,12 +19,27 @@ Created with [three.js](https://threejs.org/), a Javascript library created by [
 
 3) I can place a disc over the platform I want to put it on and if it is a legal move, it will snap into place. If the move is illegal, it will go back to where I got it from and tell me why the move didn't work.
 
-4) The game tells me when I win. Strangely enough, without a time limit, there is no "losing" in this game unless I give up...which is impossible.
+#### Nice-to-haves:
+
+4) The game tells me when I win.
 
 5) I can see how many moves I've done and the minimum number of moves it takes to solve the puzzle.
 
-#### Credits
+6) Score calculated based on number of moves I did vs. minimum number of moves and the time elapsed to get from one platform to the other.
 
-[This Youtube playlist](https://www.youtube.com/playlist?list=PLCTVwBLCNozSGfxhCIiEH26tbJrQ2_Bw3) got me started off. Without it, this project would have taken way longer.
+7) Floor fades into the distance.
+
+8) Floor has texture (e.g. wooden platform around where the discs are, grass everywhere else).
+
+9) Title "Tower Of Hanoi" hangs out above the game.
+
+10) Loading screen.
+
+11) Implement collision detection.
+
+
+### Credits
+
+[This Youtube playlist](https://www.youtube.com/playlist?list=PLCTVwBLCNozSGfxhCIiEH26tbJrQ2_Bw3) got me started. Without it, this project would have taken way longer.
 
 Infinite thanks to [cabbibo](https://github.com/cabbibo) for their [ObjectControls project](https://github.com/cabbibo/ObjectControls), especially the [Drag and Drop](https://github.com/cabbibo/ObjectControls/blob/master/examples/drag.html) example. So useful.
