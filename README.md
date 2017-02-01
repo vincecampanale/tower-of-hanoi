@@ -1,17 +1,17 @@
 ### Tower of Hanoi
-Created with [three.js](https://threejs.org/), a Javascript library created by [mrdoob](https://github.com/mrdoob) to make using WebGL easier.
+Made with &hearts; using [three.js](https://threejs.org/), a Javascript library created by [mrdoob](https://github.com/mrdoob) to make using WebGL easier.
 
 ### User Stories
 #### Must-haves:
-1) I can move around and explore space surrounding the towers.
-  W: forward
-  A: backward
-  S: turn right
-  D: turn left
-  Q: strafe left
-  E: strafe right
-  Space bar: move up and zoom out
-  X: move down and zoom in
+1) I can move around and explore space surrounding the towers.  
+  W: forward  
+  A: backward  
+  S: turn right  
+  D: turn left  
+  Q: strafe left  
+  E: strafe right  
+  Space bar: move up and zoom out  
+  X: move down and zoom in  
 
 2) I can pick up and move the discs.
   * Only the one on top of a pile.
@@ -41,6 +41,9 @@ Created with [three.js](https://threejs.org/), a Javascript library created by [
 11) TODO: Implement collision detection and physics (make discs actually drop-able and if they don't fall on top of the stack, make user move around and pick them up).
 
 12) TODO: User can only pick up discs if they are "in range" of them.
+
+13) Incorporate orbit controls! (Click to move/change camera perspective).
+  * Limit polar angle of orbit control to prevent user from moving "underneath" the floor. 
 
 ### Credits
 
