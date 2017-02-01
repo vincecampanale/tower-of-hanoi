@@ -10,6 +10,31 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div id = "info">
+    <div class="movement-info">
+      <h3>Movement Keys</h3>
+      <ul>
+        <li>W: Move forward</li>
+        <li>A: Turn left</li>
+        <li>S: Move backward</li>
+        <li>D: Turn right</li>
+        <li>Q: Strafe left</li>
+        <li>E: Strafe right</li>
+        <li>Space bar: Move up and zoom out</li>
+        <li>X: Move down and zoom in</li>
+      </ul>
+    </div>
+    <div class="rules-info">
+      <h3>Rules</h3>
+      <ol>
+        <li>Only one disc can be moved at a time.</li>
+        <li>A disc can only be moved if it is the uppermost disc on a stack.</li>
+        <li>No disc may be placed on top of a smaller disc.</li>
+      </ol>
+    </div>
+
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.js"></script>
   <script src="threejs/build/three.js"></script>
   <script src="threejs/examples/js/controls/TransformControls.js"></script>
