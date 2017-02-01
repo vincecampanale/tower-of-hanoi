@@ -348,17 +348,17 @@ function handleMovement() {
     camera.position.x += Math.sin(camera.rotation.y) * movementSettings.speed;
     camera.position.z += -Math.cos(camera.rotation.y) * movementSettings.speed;
   }
-  if(keyboard[65]){ // A key (turn right)
-    camera.rotation.y -= movementSettings.speed / 5;
-  }
-  if(keyboard[68]){ //D key (turn left)
-    camera.rotation.y += movementSettings.speed / 5;
-  }
-  if(keyboard[81]){ //Q key (strafe left)
+  // if(keyboard[65]){ // A key (turn right)
+  //   camera.rotation.y -= movementSettings.speed / 5;
+  // }
+  // if(keyboard[68]){ //D key (turn left)
+  //   camera.rotation.y += movementSettings.speed / 5;
+  // }
+  if(keyboard[65]){ //A key (move left)
     camera.position.x += -Math.sin(camera.rotation.y - Math.PI/2) * movementSettings.speed;
     camera.position.z += Math.cos(camera.rotation.y - Math.PI/2) * movementSettings.speed;
   }
-  if(keyboard[69]){ //E key (strafe right)
+  if(keyboard[68]){ //D key (move right)
     camera.position.x += Math.sin(camera.rotation.y - Math.PI/2) * movementSettings.speed;
     camera.position.z += -Math.cos(camera.rotation.y - Math.PI/2) * movementSettings.speed;
   }
