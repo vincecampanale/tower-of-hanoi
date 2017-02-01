@@ -41,7 +41,7 @@ Made with &hearts; using [three.js](https://threejs.org/), a Javascript library 
 
 13) *TODO:* User can only pick up discs if they are "in range" of them.
 
-14) *TODO:* Build a scoreboard/add decorations to the scene. 
+14) *TODO:* Build a scoreboard/add decorations to the scene.
 
 ### Credits
 

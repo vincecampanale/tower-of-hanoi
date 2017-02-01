@@ -20,7 +20,7 @@ var keyboard = {}; //global variable to access keyboard event
 var objectControls; //global variable to instantiate the ObjectControls library
 var raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2(); //global variables that have to do with figure out which object the mouse is over
 var intersectionPlane;
-var orbitControls;
+// var orbitControls;
 
 //Global object to track state of disk
 var currentDisc = {
@@ -79,9 +79,9 @@ function init() {
   /*
     Instantiate orbit controls
   */
-  orbitControls = new THREE.OrbitControls( camera ); //add orbit controls so user can click and look around intuitively
-  orbitControls.addEventListener( 'change', render ); //tell orbit controls to render
-  orbitControls.maxPolarAngle = 0.99 * (Math.PI/2); //don't let it go below the ground
+  // orbitControls = new THREE.OrbitControls( camera ); //add orbit controls so user can click and look around intuitively
+  // orbitControls.addEventListener( 'change', render ); //tell orbit controls to render
+  // orbitControls.maxPolarAngle = 0.99 * (Math.PI/2); //don't let it go below the ground
   //the .99 in the line above prevents the camera from going to the plane even with the ground and making the ground disappear
 
   createIntersectionPlane(); //add a plane for the discs to move along when dragged
@@ -117,7 +117,6 @@ function buildRenderer() {
   renderer.gammaInput = true;
   renderer.gammaOutput = true;
 
-
   document.body.appendChild(renderer.domElement); //append the renderer to the DOM
 }
 
@@ -125,7 +124,7 @@ function animate(){
   requestAnimationFrame(animate); //recursively rerenders page (~60 fps)
   handleMovement(); //allow and update keyboard movements
   objectControls.update(); //update the object controls
-  orbitControls.update();
+  // orbitControls.update();
 
   render();
 }
