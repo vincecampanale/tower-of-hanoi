@@ -1,5 +1,3 @@
-if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-
 //WebGL boilerplate global variables
 var camera, scene, renderer;
 
