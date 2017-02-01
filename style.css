@@ -25,7 +25,12 @@ body {
   top: 0px; width: 100%;
   padding: 5px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
+}
+
+.instructions {
+  margin-left: 50px;
+  margin-right: 50px;
 }
 
 .movement-info {
