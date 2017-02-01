@@ -19,24 +19,28 @@ Created with [three.js](https://threejs.org/), a Javascript library created by [
 
 3) I can place a disc over the platform I want to put it on and if it is a legal move, it will snap into place. If the move is illegal, it will go back to where I got it from and tell me why the move didn't work.
 
+4) I can see instructions that tell me:
+  * How to move.
+  * Rules for solving the puzzle.
+
 #### Nice-to-haves:
 
-4) The game tells me when I win.
+5) Add spotlight to the target platform.
+  * TODO: If stack is on left platform, switch spotlight to right. If stack is on right platform, switch spotlight to left.
 
-5) I can see how many moves I've done and the minimum number of moves it takes to solve the puzzle.
+6) TODO: I can see how many moves I've done and the minimum number of moves it takes to solve the puzzle.
 
-6) Score calculated based on number of moves I did vs. minimum number of moves and the time elapsed to get from one platform to the other.
+7) TODO: Score calculated based on number of moves I did vs. minimum number of moves and the time elapsed to get from one platform to the other.
 
-7) Floor fades into the distance.
+8) TODO: Floor fades into the distance.
 
-8) Floor has texture (e.g. wooden platform around where the discs are, grass everywhere else).
+9) TODO: Floor has texture (e.g. wooden platform around where the discs are, grass everywhere else).
 
-9) Title "Tower Of Hanoi" hangs out above the game.
+10) TODO: Loading screen.
 
-10) Loading screen.
+11) TODO: Implement collision detection and physics (make discs actually drop-able and if they don't fall on top of the stack, make user move around and pick them up).
 
-11) Implement collision detection.
-
+12) TODO: User can only pick up discs if they are "in range" of them.
 
 ### Credits
 

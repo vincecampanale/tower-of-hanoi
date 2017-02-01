@@ -1,3 +1,5 @@
+if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
 //WebGL boilerplate global variables
 var camera, scene, renderer;
 
@@ -81,7 +83,8 @@ function init() {
 
   loadTowerArrays(); //load up the initial tower arrays
 
-  letThereBeLight(); //add a point light to the scene
+  letThereBeLight(); //add a point light and ambient to the scene
+  addSpotlight(); //
 
   //build the initial tower
   addDisc(4, "blue", 1); //size 4 cylinder, color blue, bottom of stack
@@ -97,7 +100,11 @@ function buildRenderer() {
   renderer.setSize(screenWidth, screenHeight); //set the size of the renderer
 
   renderer.shadowMap.enabled = true; //enable shadows
-  renderer.shadowMap.type = THREE.BasicShadowMap; //tell the renderer what type of shadow map to use
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap; //tell the renderer what type of shadow map to use
+
+  renderer.gammaInput = true;
+  renderer.gammaOutput = true;
+
 
   document.body.appendChild(renderer.domElement); //append the renderer to the DOM
 }
@@ -280,7 +287,7 @@ function createIntersectionPlane() {
 ****************/
 function letThereBeLight() {
   //instantiate a new point light (color [opt], intensity [opt], distance, decay)
-  var pointLight = new THREE.PointLight(0xffffff, 1.2, 100, 2); //decay = 2 for realistic light falloff
+  var pointLight = new THREE.PointLight(0xffffff, 1.5, 100, 1.5); //decay = 2 for realistic light falloff
   pointLight.position.set(-3, 6, -6); //set the position of the light
   pointLight.castShadow = true; //allow the light to cast a shadow
   pointLight.shadow.camera.near = 0.1; //cast a small shadow when near
@@ -288,8 +295,26 @@ function letThereBeLight() {
   scene.add(pointLight); //add the point light to the scene
 
   //instantiate a new ambient light
-  var ambientLight = new THREE.AmbientLight( 0xffffff );
-  scene.add( ambientLight );
+  // var ambientLight = new THREE.AmbientLight( 0xffffff );
+  // scene.add( ambientLight );
+}
+
+function addSpotlight() {
+  var spotLight = new THREE.SpotLight( 0xffffff, 2 );
+  spotLight.position.set(-10, 50, 0);
+  spotLight.castShadow = true;
+  spotLight.angle = 0.15;
+  spotLight.penumbra = 1;
+  spotLight.decay = 2;
+  spotLight.distance = 200;
+  spotLight.shadow.mapSize.width = 1024;
+  spotLight.shadow.mapSize.height = 1024;
+  spotLight.shadow.camera.near = 1;
+  spotLight.shadow.camera.far = 200;
+  spotLight.target.position.set( -10 , 0, 0 );
+
+  scene.add( spotLight );
+  scene.add( spotLight.target );
 }
 
 /**************************
