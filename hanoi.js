@@ -81,7 +81,7 @@ function init() {
   /*
     Instantiate orbit controls
   */
-  orbitControls = new THREE.OrbitControls( camera, renderer.domElement ); //add orbit controls so user can click and look around intuitively
+  orbitControls = new THREE.OrbitControls( camera ); //add orbit controls so user can click and look around intuitively
   orbitControls.addEventListener( 'change', render ); //tell orbit controls to render
   orbitControls.maxPolarAngle = 0.99 * (Math.PI/2); //don't let it go below the ground
   //the .99 in the line above prevents the camera from going to the plane even with the ground and making the ground disappear
@@ -348,17 +348,17 @@ function handleMovement() {
     camera.position.x += Math.sin(camera.rotation.y) * movementSettings.speed;
     camera.position.z += -Math.cos(camera.rotation.y) * movementSettings.speed;
   }
-  // if(keyboard[65]){ // A key (turn right)
-  //   camera.rotation.y -= movementSettings.speed / 5;
-  // }
-  // if(keyboard[68]){ //D key (turn left)
-  //   camera.rotation.y += movementSettings.speed / 5;
-  // }
-  if(keyboard[65]){ //A key (move left)
+  if(keyboard[65]){ // A key (turn right)
+    camera.rotation.y -= movementSettings.speed / 5;
+  }
+  if(keyboard[68]){ //D key (turn left)
+    camera.rotation.y += movementSettings.speed / 5;
+  }
+  if(keyboard[81]){ //Q key (move left)
     camera.position.x += -Math.sin(camera.rotation.y - Math.PI/2) * movementSettings.speed;
     camera.position.z += Math.cos(camera.rotation.y - Math.PI/2) * movementSettings.speed;
   }
-  if(keyboard[68]){ //D key (move right)
+  if(keyboard[69]){ //E key (move right)
     camera.position.x += Math.sin(camera.rotation.y - Math.PI/2) * movementSettings.speed;
     camera.position.z += -Math.cos(camera.rotation.y - Math.PI/2) * movementSettings.speed;
   }
