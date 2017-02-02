@@ -193,20 +193,32 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
       }
     }
 
+
+    var towerArray = [leftTower, centerTower, rightTower];
+    towerArray.forEach(function snapDicsIntoPlace(tower) {
+      for(var i = 1; i < tower.length; i++) {
+        tower[i].position.x = tower === leftTower ? 10 :
+                              tower === centerTower ? 0 :
+                              tower === rightTower ? -10 :
+                              0;
+        tower[i].position.y = i * tower[i].geometry.parameters.height;
+      }
+    });
+
     //TODO: Refactor these for loops to make code DRY.
     //These are responsible for going through the tower arrays and making sure everything is in the right spot.
-    for(var i = 1; i < leftTower.length; i++) { //for all meshes in left tower
-      leftTower[i].position.x = 10; //snap them to x position 10 on mouse release
-      leftTower[i].position.y = i * leftTower[i].geometry.parameters.height;
-    }
-    for(var i = 1; i < centerTower.length; i++) { //for all meshes in center tower
-      centerTower[i].position.x = 0; //snap them to x position 0 on mouse release
-      centerTower[i].position.y = i * centerTower[i].geometry.parameters.height;
-    }
-    for(var i = 1; i < rightTower.length; i++) { //for all meshes in right tower
-      rightTower[i].position.x = -10; //snap them to x position -10 on mouse release
-      rightTower[i].position.y = i * rightTower[i].geometry.parameters.height;
-    }
+    // for(var i = 1; i < leftTower.length; i++) { //for all meshes in left tower
+    //   leftTower[i].position.x = 10; //snap them to x position 10 on mouse release
+    //   leftTower[i].position.y = i * leftTower[i].geometry.parameters.height;
+    // }
+    // for(var i = 1; i < centerTower.length; i++) { //for all meshes in center tower
+    //   centerTower[i].position.x = 0; //snap them to x position 0 on mouse release
+    //   centerTower[i].position.y = i * centerTower[i].geometry.parameters.height;
+    // }
+    // for(var i = 1; i < rightTower.length; i++) { //for all meshes in right tower
+    //   rightTower[i].position.x = -10; //snap them to x position -10 on mouse release
+    //   rightTower[i].position.y = i * rightTower[i].geometry.parameters.height;
+    // }
   }.bind( disc ); //bind the method context to the selected disc
 
   disc.update = function() {
