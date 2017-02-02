@@ -2,9 +2,9 @@
 var camera, scene, renderer;
 
 //Standard global variables -- window and movement settings
-var USE_WIREFRAME = false;
-var screenWidth = window.innerWidth, screenHeight = window.innerHeight;
-var movementSettings = {
+const USE_WIREFRAME = false;
+const screenWidth = window.innerWidth, screenHeight = window.innerHeight;
+const movementSettings = {
   height: 2,
   speed: 0.2,
   turnSpeed: Math.PI * 0.2 /*currently not using turnSpeed*/
@@ -12,18 +12,18 @@ var movementSettings = {
 
 //Physical objects in the scene that need to be globally accessible
 var floor; //the floor on which everything exists
-var discArray = []; //global variable to hold discArray (allows discs to be accessed from any place)
+const discArray = []; //global variable to hold discArray (allows discs to be accessed from any place)
 
-var keyboard = {}; //global variable to access keyboard event
+const keyboard = {}; //global variable to access keyboard event
 
 //Necessary global variables to enable motion along XY plane
 var objectControls; //global variable to instantiate the ObjectControls library
-var raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2(); //global variables that have to do with figure out which object the mouse is over
+const raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2(); //global variables that have to do with figure out which object the mouse is over
 var intersectionPlane;
-// var orbitControls;
+// var orbitControls; TODO: Change source code in three.js library so that these don't interfere with keyboard inputs.
 
 //Global object to track state of disk
-var currentDisc = {
+let currentDisc = {
   radius: 0,
   originalX: -10, //all the discs start at -10
   releasedX: -10, //same as originalX since none have been picked up
@@ -51,9 +51,9 @@ var currentDisc = {
 };
 
 //Instantiate globally accessible tower arrays
-var leftTower = ["left"];
-var centerTower = ["center"];
-var rightTower = ["right"];
+let leftTower = ["left"];
+let centerTower = ["center"];
+let rightTower = ["right"];
 
 
 
@@ -140,19 +140,20 @@ function render() {
 
 function addDisc(number, color, stackPosition) { //add a new cylinder on to the stack with number (1 smallest - 4 biggest), a color, and the position in the stack (1 - bottom, 4 - top)
   //instantiate a cylinder (radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded, thetaStart, thetaLength)
-  var discGeometry = new THREE.CylinderGeometry(number, number, 0.8, 50, false);
-  var discMaterial = new THREE.MeshPhongMaterial({color: color, wireframe: false});
-  var disc = new THREE.Mesh( discGeometry, discMaterial );
-  var y = stackPosition === 1 ? 0.4 + (stackPosition * disc.geometry.parameters.height / 2) :
+  let discGeometry = new THREE.CylinderGeometry(number, number, 0.8, 50, false);
+  let discMaterial = new THREE.MeshPhongMaterial({color: color, wireframe: false});
+  let disc = new THREE.Mesh( discGeometry, discMaterial );
+  let y = stackPosition === 1 ? 0.4 + (stackPosition * disc.geometry.parameters.height / 2) :
                                 (stackPosition * (disc.geometry.parameters.height)); //place the cylinder on top of the platform
-  var x = 10; //place the cylinder in the center of the left platform
-  var z = 0; //place it in the center of the floor
+  let x = 10; //place the cylinder in the center of the left platform
+  let z = 0; //place it in the center of the floor
 
-  var hoverMaterial = new THREE.MeshBasicMaterial({ color: 0x55ff88 }); //when hovering over a disc, change the color & material
+  let hoverMaterial = new THREE.MeshBasicMaterial({ color: 0x55ff88 }); //when hovering over a disc, change the color & material
 
   disc.hoverOver = function() { //when hovering over a disc, change its color
     this.material = hoverMaterial;
   }.bind( disc );
+
   disc.hoverOut = function() { //change back to normal color on hover out
     this.material = discMaterial;
   }.bind( disc ); //bind the method context to the selected disc
@@ -193,7 +194,6 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
       }
     }
 
-
     var towerArray = [leftTower, centerTower, rightTower];
     towerArray.forEach(function snapDicsIntoPlace(tower) {
       for(var i = 1; i < tower.length; i++) {
@@ -204,21 +204,6 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
         tower[i].position.y = i * tower[i].geometry.parameters.height;
       }
     });
-
-    //TODO: Refactor these for loops to make code DRY.
-    //These are responsible for going through the tower arrays and making sure everything is in the right spot.
-    // for(var i = 1; i < leftTower.length; i++) { //for all meshes in left tower
-    //   leftTower[i].position.x = 10; //snap them to x position 10 on mouse release
-    //   leftTower[i].position.y = i * leftTower[i].geometry.parameters.height;
-    // }
-    // for(var i = 1; i < centerTower.length; i++) { //for all meshes in center tower
-    //   centerTower[i].position.x = 0; //snap them to x position 0 on mouse release
-    //   centerTower[i].position.y = i * centerTower[i].geometry.parameters.height;
-    // }
-    // for(var i = 1; i < rightTower.length; i++) { //for all meshes in right tower
-    //   rightTower[i].position.x = -10; //snap them to x position -10 on mouse release
-    //   rightTower[i].position.y = i * rightTower[i].geometry.parameters.height;
-    // }
   }.bind( disc ); //bind the method context to the selected disc
 
   disc.update = function() {
