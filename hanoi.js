@@ -176,10 +176,10 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
     currentDisc.releasedX = this.position.x; //the position the disc is released at
 
     if(currentDisc.isMoved()){ //everything that happens here assumes that the disc is moveable
-      var newTower = currentDisc.newPlatform(); //get the platform the disc is being moved to
-      var oldTower = currentDisc.oldPlatform(); //get the platform the disc is being moved from
+      let newTower = currentDisc.newPlatform(); //get the platform the disc is being moved to
+      let oldTower = currentDisc.oldPlatform(); //get the platform the disc is being moved from
       if ( newTower.length > 1) { //if there are any discs already in the new tower
-        var topDiscRadius = newTower[newTower.length - 1].geometry.parameters.radiusTop; //get the top disc radius
+        let topDiscRadius = newTower[newTower.length - 1].geometry.parameters.radiusTop; //get the top disc radius
         if ( currentDisc.radius > topDiscRadius ) { //if the current disc radius is larger than the top disc radius
           this.position.x = currentDisc.originalX; // Illegal move - send the current disc back to its original position
           console.log("Nope"); //nooooope nope nope nope
@@ -194,9 +194,9 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
       }
     }
 
-    var towerArray = [leftTower, centerTower, rightTower];
+    let towerArray = [leftTower, centerTower, rightTower];
     towerArray.forEach(function snapDicsIntoPlace(tower) {
-      for(var i = 1; i < tower.length; i++) {
+      for(let i = 1; i < tower.length; i++) {
         tower[i].position.x = tower === leftTower ? 10 :
                               tower === centerTower ? 0 :
                               tower === rightTower ? -10 :
@@ -207,8 +207,8 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
   }.bind( disc ); //bind the method context to the selected disc
 
   disc.update = function() {
-    var raycaster = objectControls.raycaster;
-    var i = raycaster.intersectObject( intersectionPlane );
+    let raycaster = objectControls.raycaster;
+    let i = raycaster.intersectObject( intersectionPlane );
 
     /*
     Important game logic:
@@ -216,17 +216,17 @@ function addDisc(number, color, stackPosition) { //add a new cylinder on to the 
     so only allow the disc to move if it is the last index in it's tower
     */
     if (leftTower.indexOf(this) !== -1) { //if selected disc is in left tower
-      var moveable = leftTower.indexOf(this) === leftTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
+      let moveable = leftTower.indexOf(this) === leftTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
       if (moveable) {
         this.position.copy( i[0].point ); //voodoo magic that allows this disc to move... TODO: Figure out how this works.
       }
     } else if (centerTower.indexOf(this) !== -1) { //if selected disc is in center tower
-      var moveable = centerTower.indexOf(this) === centerTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
+      let moveable = centerTower.indexOf(this) === centerTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
       if (moveable) {
         this.position.copy( i[0].point ); //more voodoo - does it have to do with the Raycaster?
       }
     } else if (rightTower.indexOf(this) !== -1) { //if selected disc is in right tower
-      var moveable = rightTower.indexOf(this) === rightTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
+      let moveable = rightTower.indexOf(this) === rightTower.length - 1 ? true : false; //if it is the last disc to be added to the tower, it is on top of the tower, and is therefore moveable
       if (moveable) {
         this.position.copy( i[0].point ); //woogly woogly woogly
       }
@@ -256,15 +256,15 @@ function loadTowerArrays() {
 
 function addPlatformAt(position) { //add a new platform at "left", "right", or "center"
   //instantiate a cylinder (radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded, thetaStart, thetaLength)
-  var platformGeometry = new THREE.CylinderGeometry(4, 4, 0.4, 50, false);
-  var platformMaterial = new THREE.MeshPhongMaterial({color: 0x001f3f, wireframe: USE_WIREFRAME});
-  var platform = new THREE.Mesh( platformGeometry, platformMaterial );
-  var y = platform.geometry.parameters.height / 2; //bottom of platform touches floor
-  var x = position === "left" ? -10:
+  let platformGeometry = new THREE.CylinderGeometry(4, 4, 0.4, 50, false);
+  let platformMaterial = new THREE.MeshPhongMaterial({color: 0x001f3f, wireframe: USE_WIREFRAME});
+  let platform = new THREE.Mesh( platformGeometry, platformMaterial );
+  let y = platform.geometry.parameters.height / 2; //bottom of platform touches floor
+  let x = position === "left" ? -10:
           position === "right" ? 10:
           position === "center" ? 0 :
           0; //if nothing is provided, place platform in center
-  var z = 0; //place it in the center of the floor
+  let z = 0; //place it in the center of the floor
 
   platform.position.set(x, y, z); //set the position of the platform
   platform.receiveShadow = true; //allow the platform to receive shadows
@@ -274,8 +274,8 @@ function addPlatformAt(position) { //add a new platform at "left", "right", or "
 
 function addFloor() {
   //instantiate a plane (width, height, widthSegments [opt], heightSegments [opt])
-  var planeGeometry = new THREE.PlaneGeometry(1000, 1000, 20, 20);
-  var planeMaterial = new THREE.MeshPhongMaterial({color: 0x001f3f, wireframe: USE_WIREFRAME});
+  let planeGeometry = new THREE.PlaneGeometry(1000, 1000, 20, 20);
+  let planeMaterial = new THREE.MeshPhongMaterial({color: 0x001f3f, wireframe: USE_WIREFRAME});
   floor = new THREE.Mesh(planeGeometry, planeMaterial);
   floor.rotation.x -= Math.PI / 2; //turn the floor horizontally (make sure it's facing up)
   floor.receiveShadow = true; //tell the floor to receive shadows (note: floor does not need to cast shadows)
@@ -284,8 +284,8 @@ function addFloor() {
 }
 
 function createIntersectionPlane() {
-  var geo = new THREE.PlaneGeometry( 100000 , 100000, 8, 8);
-  var mat = new THREE.MeshNormalMaterial({visible: false, side: THREE.DoubleSide});
+  let geo = new THREE.PlaneGeometry( 100000 , 100000, 8, 8);
+  let mat = new THREE.MeshNormalMaterial({visible: false, side: THREE.DoubleSide});
   intersectionPlane = new THREE.Mesh( geo , mat );
   intersectionPlane.position.set(0,0,0);
   scene.add( intersectionPlane );
@@ -299,7 +299,7 @@ function createIntersectionPlane() {
 ****************/
 function letThereBeLight() {
   //instantiate a new point light (color [opt], intensity [opt], distance, decay)
-  var pointLight = new THREE.PointLight(0xffffff, 1.5, 100, 1.5); //decay = 2 for realistic light falloff
+  let pointLight = new THREE.PointLight(0xffffff, 1.5, 100, 1.5); //decay = 2 for realistic light falloff
   pointLight.position.set(-3, 6, -6); //set the position of the light
   pointLight.castShadow = true; //allow the light to cast a shadow
   pointLight.shadow.camera.near = 0.1; //cast a small shadow when near
@@ -312,7 +312,7 @@ function letThereBeLight() {
 }
 
 function addSpotlight() {
-  var spotLight = new THREE.SpotLight( 0xffffff, 2 );
+  let spotLight = new THREE.SpotLight( 0xffffff, 2 );
   spotLight.position.set(-10, 50, 0);
   spotLight.castShadow = true;
   spotLight.angle = 0.15;
